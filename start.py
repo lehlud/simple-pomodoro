@@ -91,7 +91,7 @@ def main(scr):
                 triggered_end = True
             
                 if is_break:
-                    sp.Popen(['ffplay', 'bells.mp3', '-v', '0', '-nodisp', '-autoexit'])
+                    sp.Popen(['bash', '-c', 'for i in {1..3}; do ffplay bells.mp3 -v 0 -nodisp -autoexit; done'])
                     sp.Popen(['xdg-screensaver', 'reset'])
                 else:
                     sp.Popen(['xdg-screensaver', 'activate'])
