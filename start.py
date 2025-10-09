@@ -51,7 +51,7 @@ def main(scr):
         remaining_duration_s = duration_s
 
         notification_id = None
-        notifiers = [(600, '10 Minutes'), (120, '2 Minutes'), (60, '1 Minutes'), (30, '30 Seconds'), (10, '10 Seconds'), (5, '5 Seconds'), (3, '3 Seconds'), (2, '2 Seconds'), (1, '1 Seconds')]
+        notifiers = [(600, '10 Minutes'), (120, '2 Minutes'), (60, '1 Minute'), (30, '30 Seconds'), (10, '10 Seconds'), (5, '5 Seconds'), (3, '3 Seconds'), (2, '2 Seconds'), (1, '1 Second')]
 
         paused = False
         triggered_end = False
