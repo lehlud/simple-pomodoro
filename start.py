@@ -21,11 +21,12 @@ def write_centered(scr, texts: list[str]):
         start_x = (width - max_line_width) // 2
 
         for j, line in enumerate(lines):
-            try: scr.addstr(start_y + j, start_x, line, curses.A_BOLD)
+            if line.strip() == '' and len(lines) > 1: continue
+
+            try: scr.addstr(start_y, start_x, line, curses.A_BOLD)
             except: pass
 
-        start_y += len(lines)
-        start_y += 1
+            start_y += 1
 
 def write_status(scr, heading: str, duration_s: int, remaining_s: int, paused: bool):
     art_heading = art.text2art(heading, font='small')
@@ -36,7 +37,7 @@ def write_status(scr, heading: str, duration_s: int, remaining_s: int, paused: b
     remaining_s = str(remaining_s % 60)
     art_remaining = art.text2art(f'{remaining_m.rjust(2, "0")}:{remaining_s.rjust(2, "0")}', font=FONT)
 
-    write_centered(scr, ['', art_heading, art_remaining, 'BREAK' if is_break else 'WORKY WORK', '(PAUSED)' if paused else ''])
+    write_centered(scr, [art_heading, '', art_remaining, '', 'BREAK' if is_break else 'WORKY WORK', '', '(PAUSED)' if paused else ''])
     
 
 def main(scr):
