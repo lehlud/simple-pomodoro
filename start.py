@@ -1,12 +1,58 @@
-import art
-import time
-import curses
-import random
-import subprocess as sp
+import os, art, time, curses, random, subprocess as sp
+
+if os.name not in ['posix', 'nt']:
+    print('Error: os unsupported')
+    exit(1)
+
+notification_id = None
 
 FONTS = ['poison', 'banner3', 'pebbles', 'colossal', 'lildevil', 'ghost', 'swampland', 'larry3d', 'nancyj-fancy', 'slide', 'tanja', 'jazmine']
 FONT = random.choice(FONTS)
 # FONT = random.choice(art.ASCII_FONTS)
+
+def play_bells():
+    if os.name == 'posix':
+        sp.Popen(['bash', '-c', 'for i in {1..3}; do aplay bells.wav &> /dev/null; done'])
+
+    elif os.name == 'nt':
+        sp.Popen(['powershell', '-c', '$m=New-Object Media.SoundPlayer bells.wav;1..3 % {$m.PlaySync}'])
+
+def lock_screen():
+    if os.name == 'posix':
+        sp.Popen(['xdg-screensaver', 'activate'])
+
+    elif os.name == 'nt':
+        sp.Popen(['rundll32', 'user32.dll,LockWorkStation'])
+
+def unlock_screen():
+    if os.name == 'posix':
+        sp.Popen(['xdg-screensaver', 'reset'])
+
+    elif os.name == 'nt':
+        send_notification('Pomodoro!', 'Hey, you should login again!', 5000)
+
+def send_notification(title: str, message: str, duration_ms: int = 3000):
+    if os.name == 'posix':
+        global notification_id
+        args = ['notify-send', title, message, '-p', '-t', str(duration_ms)]
+        if notification_id: args += ['-r', notification_id]
+        stdout, _ = sp.Popen(args, stdout=sp.PIPE).communicate()
+        notification_id = stdout.strip()
+
+    elif os.name == 'nt':
+        script = f"""
+            Add-Type -AssemblyName System.Windows.Forms;
+            $n = New-Object System.Windows.Forms.NotifyIcon;
+            $n.Icon = [System.Drawing.SystemIcons]::Information;
+            $n.BalloonTipTitle = @'{title}'@;
+            $n.BalloonTipText = @'{message}'@;
+            $n.Visible = $true;
+            $n.ShowBalloonTip({duration_ms});
+            Start-Sleep -Milliseconds {duration_ms};
+            $n.Dispose();
+        """
+
+        sp.Popen(['powershell', '-c', script])
 
 def write_centered(scr, texts: list[str]):
     height, width = scr.getmaxyx()
@@ -50,8 +96,7 @@ def main(scr):
         duration_s = 25 * 60
         remaining_duration_s = duration_s
 
-        notification_id = None
-        notifiers = [(600, '10 Minutes'), (120, '2 Minutes'), (60, '1 Minute'), (30, '30 Seconds'), (10, '10 Seconds'), (5, '5 Seconds'), (3, '3 Seconds'), (2, '2 Seconds'), (1, '1 Second')]
+        notifiers = [(600, '10 Minutes'), (120, '2 Minutes'), (60, '1 Minute'), (30, '30 Seconds'), (10, '10 Seconds'), (3, '3 Seconds'), (2, '2 Seconds'), (1, '1 Second')]
 
         paused = False
         triggered_end = False
@@ -91,10 +136,10 @@ def main(scr):
                 triggered_end = True
             
                 if is_break:
-                    sp.Popen(['bash', '-c', 'for i in {1..3}; do ffplay bells.mp3 -v 0 -nodisp -autoexit; done'])
-                    sp.Popen(['xdg-screensaver', 'reset'])
+                    play_bells()
+                    unlock_screen()
                 else:
-                    sp.Popen(['xdg-screensaver', 'activate'])
+                    lock_screen()
                     reset(5 * 60)
                     continue
 
@@ -102,13 +147,8 @@ def main(scr):
                 if notifier_s != remaining_s: continue
                 if notifier_s in sent_notifiers: break
 
-                args = ['notify-send', 'Pomodoro!', f'{notifier_msg} remaining', '-p', '-t', '5000']
-                if notification_id: args += ['-r', notification_id]
-                stdout, _ = sp.Popen(args, stdout=sp.PIPE).communicate()
-                notification_id = stdout.strip()
-
+                send_notification('Pomodoro!', f'{notifier_msg} remaining')
                 sent_notifiers.append(notifier_s)
-
                 break
 
             scr.clear()

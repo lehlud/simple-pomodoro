@@ -5,7 +5,7 @@ set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Check for required commands
-REQUIRED_CMDS=("notify-send" "xdg-screensaver" "ffplay")
+REQUIRED_CMDS=("notify-send" "xdg-screensaver" "aplay")
 for cmd in "${REQUIRED_CMDS[@]}"; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
         echo "$cmd is required to run this script"
