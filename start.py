@@ -15,23 +15,25 @@ def play_bells():
         sp.Popen(['bash', '-c', 'for i in {1..3}; do aplay bells.wav &> /dev/null; done'])
 
     elif os.name == 'nt':
-        sp.Popen(['powershell', '-c', '$m=New-Object Media.SoundPlayer bells.wav;1..3 % {$m.PlaySync}'])
+        sp.Popen(['powershell', '-c', '$m=New-Object Media.SoundPlayer bells.wav;1..3|%{$m.PlaySync()}'])
 
 def lock_screen():
     if os.name == 'posix':
         sp.Popen(['xdg-screensaver', 'activate'])
 
     elif os.name == 'nt':
-        sp.Popen(['rundll32', 'user32.dll,LockWorkStation'])
+        sp.Popen(['powershell', '-c', 'rundll32 user32.dll,LockWorkStation'])
 
 def unlock_screen():
+    send_notification('Pomodoro!', 'Hey, you should start working again!', 5000)
+
     if os.name == 'posix':
         sp.Popen(['xdg-screensaver', 'reset'])
-
+    
     elif os.name == 'nt':
-        send_notification('Pomodoro!', 'Hey, you should login again!', 5000)
+        pass
 
-def send_notification(title: str, message: str, duration_ms: int = 3000):
+def send_notification(title: str, message: str, duration_ms: int = 1000):
     if os.name == 'posix':
         global notification_id
         args = ['notify-send', title, message, '-p', '-t', str(duration_ms)]
@@ -44,8 +46,8 @@ def send_notification(title: str, message: str, duration_ms: int = 3000):
             Add-Type -AssemblyName System.Windows.Forms;
             $n = New-Object System.Windows.Forms.NotifyIcon;
             $n.Icon = [System.Drawing.SystemIcons]::Information;
-            $n.BalloonTipTitle = @'{title}'@;
-            $n.BalloonTipText = @'{message}'@;
+            $n.BalloonTipTitle = '{title}';
+            $n.BalloonTipText = '{message}';
             $n.Visible = $true;
             $n.ShowBalloonTip({duration_ms});
             Start-Sleep -Milliseconds {duration_ms};
@@ -96,7 +98,7 @@ def main(scr):
         duration_s = 25 * 60
         remaining_duration_s = duration_s
 
-        notifiers = [(600, '10 Minutes'), (120, '2 Minutes'), (60, '1 Minute'), (30, '30 Seconds'), (10, '10 Seconds'), (3, '3 Seconds'), (2, '2 Seconds'), (1, '1 Second')]
+        notifiers = [(600, '10 Minutes'), (120, '2 Minutes'), (60, '1 Minute'), (30, '30 Seconds'), (10, '10 Seconds')]
 
         paused = False
         triggered_end = False

@@ -17,7 +17,7 @@ done
 if [ ! -d "$DIR/venv" ]; then
     /usr/bin/env python3 -m venv --system-site-packages "$DIR/venv"
     source "$DIR/venv/bin/activate"
-    /usr/bin/env python3 -m pip install -r "$DIR/requirements.txt"
+    /usr/bin/env python3 -m pip install art
     echo
 else
     source "$DIR/venv/bin/activate"
