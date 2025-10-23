@@ -6,8 +6,9 @@ if os.name not in ['posix', 'nt']:
 
 notification_id = None
 
-FONTS = ['poison', 'banner3', 'pebbles', 'colossal', 'lildevil', 'ghost', 'swampland', 'larry3d', 'nancyj-fancy', 'slide', 'tanja', 'jazmine']
+FONTS = ['poison', 'banner3', 'pebbles', 'colossal', 'lildevil', 'ghost', 'swampland', 'larry3d', 'tanja', 'jazmine']
 FONT = random.choice(FONTS)
+print(FONT)
 # FONT = random.choice(art.ASCII_FONTS)
 
 def play_bells():
@@ -90,7 +91,11 @@ def write_status(scr, heading: str, duration_s: int, remaining_s: int, paused: b
 
 def main(scr):
     try:
+        curses.start_color()
+        curses.use_default_colors()
+
         curses.curs_set(0)
+
         scr.nodelay(True)
         scr.timeout(200)
 
