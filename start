@@ -2,10 +2,10 @@
 
 set -e
 
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$(dirname "$0")"
 
 # Check for required commands
-REQUIRED_CMDS=("notify-send" "xdg-screensaver" "aplay")
+REQUIRED_CMDS=("notify-send" "xdg-screensaver" "aplay" "xset" "dbus-send")
 for cmd in "${REQUIRED_CMDS[@]}"; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
         echo "$cmd is required to run this script"
@@ -14,14 +14,14 @@ for cmd in "${REQUIRED_CMDS[@]}"; do
 done
 
 # Set up Python virtual environment if it doesn't exist
-if [ ! -d "$DIR/venv" ]; then
-    /usr/bin/env python3 -m venv --system-site-packages "$DIR/venv"
-    source "$DIR/venv/bin/activate"
+if [ ! -d "./venv" ]; then
+    /usr/bin/env python3 -m venv --system-site-packages "./venv"
+    source "./venv/bin/activate"
     /usr/bin/env python3 -m pip install art
     echo
 else
-    source "$DIR/venv/bin/activate"
+    source "./venv/bin/activate"
 fi
 
 # Run the Python script with all passed arguments
-/usr/bin/env python3 "$DIR/start.py" "$@"
+/usr/bin/env python3 "./start.py" "$@"
